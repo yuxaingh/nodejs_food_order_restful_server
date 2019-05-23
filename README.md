@@ -2,6 +2,7 @@
 This is a node.js RESTful api server for online food order system.
 
 # Implemented APIs and their payload:
+```
 Category:
 GET localhost:3000/category
 
@@ -117,8 +118,11 @@ POST localhost:3000/login
 }
 
 If you got 401 error, please login first and get JWT. Add authorization in header: Bearer "token".
+```
 
 # To do
+```
 Menu api
 Order api
 (Please design and write the api definition in above section before you actually implement the api)
+```

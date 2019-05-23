@@ -1,8 +1,12 @@
 const dbFunction = require('../util/dbUtil').dbFunction;
-const verifyPayloadType = require('../util/helper').verifyPayloadType;
+const {verifyPayloadType, verifyHeaderAuth} = require('../util/helper');
 const logger = require('../util/logger');
+const constants = require('../util/constants');
 
-async function getAllUsers(){
+async function getAllUsers(request){
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE
+    };
     let res;
     try{
         let [rows] = await dbFunction.getAllUsers();
@@ -18,10 +22,10 @@ async function getAllUsers(){
 
 async function postUser(request){
     if(!verifyPayloadType(request, 'user')){
-        return {
-            error: 'Bad request',
-            statusCode: 400
-        };
+        return constants.BAD_REQUEST_RESPONSE;
+    }
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
     }
     let name = request.body.data.name;
     let email = request.body.data.email;
@@ -39,10 +43,7 @@ async function postUser(request){
         //Check if db already had the same email
         let [rows] = await dbFunction.getUserByEmail(email);
         if(rows.length > 0){
-            return {
-                error: 'This email has been registerd.',
-                statusCode: 400
-            }
+            return constants.INVALID_EMAIL_RESPONSE;
         }
         //If the email is valid, continue registeration
         let executeResult = await dbFunction.createUser(name, email, phone, address, isAdmin, password);
@@ -58,10 +59,10 @@ async function postUser(request){
 
 async function patchUser(request){
     if(!verifyPayloadType(request, 'user')){
-        return {
-            error: 'Bad request',
-            statusCode: 400
-        };
+        return constants.BAD_REQUEST_RESPONSE;
+    }
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
     }
     let id = request.params.id;
     let name = request.body.data.name;
@@ -79,20 +80,13 @@ async function patchUser(request){
     try{
         let [rows] = await dbFunction.getUserById(id);
         if(rows.length === 0){
-            let res = {
-                error: "Can not find the user with id.",
-                statusCode: 404
-            };
             logger.error(`404 Data not found for ${request.method} - ${request.originalUrl}`);
-            return res;
+            return constants.DATA_NOT_FOUND_RESPONSE;
         }
         //Check if the email of the user want to change had already been taken
         [rows] = await dbFunction.getUserByEmail(email);
         if(rows[0].id != id){
-            return {
-                error: 'This email has been registerd. Please use another one.',
-                statusCode: 400
-            }
+            return constants.INVALID_EMAIL_RESPONSE;
         }
 
         //If the email is valid, continue update user info

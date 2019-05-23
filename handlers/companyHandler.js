@@ -1,8 +1,12 @@
 const dbFunction = require('../util/dbUtil').dbFunction;
-const verifyPayloadType = require('../util/helper').verifyPayloadType;
+const {verifyPayloadType, verifyHeaderAuth} = require('../util/helper');
 const logger = require('../util/logger');
+const constants = require('../util/constants');
 
 async function getAllCompanies(){
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
+    }
     let res = {
         type: 'company'
     };
@@ -16,16 +20,15 @@ async function getAllCompanies(){
 }
 
 async function getCompanyById(request){
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
+    }
     let id = request.params.id;
     try{
         let [rows] = await dbFunction.getCompanyById(id);
         if(rows.length === 0){
-            let res = {
-                error: "Can not find the company with id.",
-                statusCode: 404
-            };
             logger.error(`404 Data not found for ${request.method} - ${request.originalUrl}`);
-            return res;
+            return constants.DATA_NOT_FOUND_RESPONSE;
         }
         let res = {
             type: "company",
@@ -39,10 +42,10 @@ async function getCompanyById(request){
 
 async function postCompany(request){
     if(!verifyPayloadType(request, 'company')){
-        return {
-            error: 'Bad request',
-            statusCode: 400
-        };
+        return constants.BAD_REQUEST_RESPONSE;
+    }
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
     }
     let name = request.body.data.name;
     let email = request.body.data.email;
@@ -61,10 +64,10 @@ async function postCompany(request){
 
 async function patchCompany(request){
     if(!verifyPayloadType(request, 'company')){
-        return {
-            error: 'Bad request',
-            statusCode: 400
-        };
+        return constants.BAD_REQUEST_RESPONSE;
+    }
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
     }
     let id = request.params.id;
     let name = request.body.data.name;
@@ -73,12 +76,8 @@ async function patchCompany(request){
     try{
         let [rows] = await dbFunction.getCompanyById(id);
         if(rows.length === 0){
-            let res = {
-                error: "Can not find the company with id.",
-                statusCode: 404
-            };
             logger.error(`404 Data not found for ${request.method} - ${request.originalUrl}`);
-            return res;
+            return constants.DATA_NOT_FOUND_RESPONSE;
         }
         await dbFunction.updateCompanyById(id, name, email, phone);
         logger.info(`Successfully update company with id: ${id}`);

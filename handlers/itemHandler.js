@@ -1,8 +1,12 @@
 const dbFunction = require('../util/dbUtil').dbFunction;
-const verifyPayloadType = require('../util/helper').verifyPayloadType;
+const {verifyPayloadType, verifyHeaderAuth} = require('../util/helper');
 const logger = require('../util/logger');
+const constants = require('../util/constants');
 
-async function getAllItems(){
+async function getAllItems(request){
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
+    }
     let res;
     try{
         let [rows] = await dbFunction.getAllItems();
@@ -18,10 +22,10 @@ async function getAllItems(){
 
 async function postItem(request){
     if(!verifyPayloadType(request, 'item')){
-        return {
-            error: 'Bad request',
-            statusCode: 400
-        };
+        return constants.BAD_REQUEST_RESPONSE;
+    }
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
     }
     let categoryId = request.body.data.category;
     let companyId = request.body.data.company;
@@ -45,10 +49,10 @@ async function postItem(request){
 
 async function patchItem(request){
     if(!verifyPayloadType(request, 'item')){
-        return {
-            error: 'Bad request',
-            statusCode: 400
-        };
+        return constants.BAD_REQUEST_RESPONSE;
+    }
+    if(!verifyHeaderAuth(request, true)){
+        return constants.AUTHORIZATION_ERROR_RESPONSE;
     }
     let id = request.params.id;
     let categoryId = request.body.data.category;
@@ -62,12 +66,8 @@ async function patchItem(request){
     try{
         let [rows] = await dbFunction.getItemById(id);
         if(rows.length === 0){
-            let res = {
-                error: "Can not find the item with id.",
-                statusCode: 404
-            };
             logger.error(`404 Data not found for ${request.method} - ${request.originalUrl}`);
-            return res;
+            return constants.DATA_NOT_FOUND_RESPONSE;
         }
         await dbFunction.updateItemById(id, name, price, description, categoryId, companyId);
         logger.info(`Successfully update item with id: ${id}`);

@@ -1,13 +1,15 @@
 const mysql = require('mysql2');
+const dbconfig = require('../config').dbconfig;
+
 // create the pool
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '1111',
-    database: 'food_order_system',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+    host: dbconfig.DB_HOST,
+    user: dbconfig.DB_USER,
+    password: dbconfig.DB_PASSWORD,
+    database: dbconfig.DB_NAME,
+    waitForConnections: dbconfig.DB_WAIT_FOR_CONNECTIONS,
+    connectionLimit: dbconfig.DB_CONNECTION_LIMIT,
+    queueLimit: dbconfig.DB_QUEUE_LIMIT
   });
 // now get a Promise wrapped instance of that pool
 const promisePool = pool.promise();
@@ -80,7 +82,7 @@ dbFunction.getUserById = function(id){
 }
 
 dbFunction.getUserByEmail = function(email){
-    return promisePool.query('SELECT id, name, email, phone, address, isAdmin FROM `user` WHERE email=?', [email]);
+    return promisePool.query('SELECT id, name, email, phone, address, isAdmin, password FROM `user` WHERE email=?', [email]);
 }
 
 dbFunction.createUser = function(name, email, phone, address, isAdmin, password){

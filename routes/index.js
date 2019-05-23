@@ -5,11 +5,15 @@ const {getAllCompanies, postCompany, patchCompany, getCompanyById} = require('..
 const {getAllCategories, postCategory, patchCategory} = require('../handlers/categoryHandler');
 const {getAllItems, postItem, patchItem} = require('../handlers/itemHandler');
 const {getAllUsers, postUser, patchUser} = require('../handlers/userHandler');
+const {getJWT} = require('../handlers/loginHandler');
 
 function sendErrorResponse(res, error, errorCode){
   switch(errorCode){
     case 400:
       res.status(400).send(error);
+      break;
+    case 401:
+      res.status(401).send(error);
       break;
     case 404:
       res.status(404).send(error);
@@ -17,7 +21,7 @@ function sendErrorResponse(res, error, errorCode){
     case 500:
       res.status(500).send(error);
       logger.error(JSON.stringify(error.stack));
-    break;
+      break;
   }
 }
 
@@ -86,7 +90,7 @@ router.patch('/company/:id', function(req, res, next){
 });
 
 router.get('/category', function(req, res, next){
-  getAllCategories()
+  getAllCategories(req)
   .then(responseBody => {
     sendResponse(res, responseBody, 'GET');
   })
@@ -116,7 +120,7 @@ router.patch('/category/:id', function(req, res, next){
 });
 
 router.get('/item', function(req, res, next){
-  getAllItems()
+  getAllItems(req)
   .then(responseBody => {
     sendResponse(res, responseBody, 'GET');
   })
@@ -146,7 +150,7 @@ router.patch('/item/:id', function(req, res, next){
 });
 
 router.get('/user', function(req, res, next){
-  getAllUsers()
+  getAllUsers(req)
   .then(responseBody => {
     sendResponse(res, responseBody, 'GET');
   })
@@ -169,6 +173,16 @@ router.patch('/user/:id', function(req, res, next){
   patchUser(req)
   .then(responseBody => {
     sendResponse(res, responseBody, 'PATCH');
+  })
+  .catch(err => {
+    sendErrorResponse(res, err, 500);
+  });
+});
+
+router.post('/login', function(req, res, next){
+  getJWT(req)
+  .then(responseBody => {
+    sendResponse(res, responseBody, 'POST');
   })
   .catch(err => {
     sendErrorResponse(res, err, 500);

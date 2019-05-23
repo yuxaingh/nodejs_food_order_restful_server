@@ -1,6 +1,14 @@
 # nodejs_food_order_restful_server
 This is a node.js RESTful api server for online food order system.
 
+# To run the program
+Please install MySql and import the schema
+
+To run the server
+```
+npm start
+```
+
 # Implemented APIs and their payload:
 ```
 Category:

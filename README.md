@@ -115,6 +115,30 @@ PATCH localhost:3000/user/id
 	}
 }
 
+Order:
+GET localhost:3000/order
+
+GET localhost:3000/order?user=1
+
+GET localhost:3000/order/1
+
+POST localhost:3000/order
+{
+	"type": "order",
+	"data": {
+		"itemList": [
+			{
+				"id": 1,
+				"quantity":1
+			},
+			{
+				"id": 2,
+				"quantity":2
+			}
+			]
+	}
+}
+
 Login:
 POST localhost:3000/login
 {

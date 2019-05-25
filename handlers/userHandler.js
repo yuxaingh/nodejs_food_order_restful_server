@@ -20,6 +20,7 @@ async function getAllUsers(request){
     }
 }
 
+//Todo: only administrator can create admin user
 async function postUser(request){
     if(!verifyPayloadType(request, 'user')){
         return constants.BAD_REQUEST_RESPONSE;

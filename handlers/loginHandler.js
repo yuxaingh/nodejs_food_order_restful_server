@@ -14,6 +14,7 @@ async function getJWT(request){
     if(rows.length > 0){
         if(rows[0].password === password){
             let obj = {
+                id: rows[0].id,
                 user: rows[0].name,
                 email: rows[0].email,
                 isAdmin: rows[0].isAdmin

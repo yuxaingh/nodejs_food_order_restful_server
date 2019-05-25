@@ -86,13 +86,44 @@ dbFunction.getUserByEmail = function(email){
 }
 
 dbFunction.createUser = function(name, email, phone, address, isAdmin, password){
-    return promisePool.execute('INSERT INTO `user` (name, email, phone, address, isAdmin, password) VALUE (?, ?, ?, ?, ?)', 
+    return promisePool.execute('INSERT INTO `user` (name, email, phone, address, isAdmin, password) VALUE (?, ?, ?, ?, ?, ?)', 
     [name, email, phone, address, isAdmin, password]);
 }
 
 dbFunction.updateUserById = function(id, name, email, phone, address, isAdmin, password){
     return promisePool.execute('UPDATE `user` SET name=?, email=?, phone=?, address=?, isAdmin=?, password=? WHERE id=?', 
     [name, email, phone, address, isAdmin, password, id]);
+}
+
+dbFunction.getAllOrders = function(){
+    return promisePool.execute('SELECT * FROM `order_detail` JOIN `item` ON order_detail.item_id=item.id JOIN `order` ON order.id=order_detail.order_id');
+}
+
+dbFunction.getOrderById = function(id){
+    return promisePool.execute('SELECT * FROM `order_detail` JOIN `item` ON order_detail.item_id=item.id JOIN `order` ON order.id=order_detail.order_id WHERE order_detail.order_id=?',
+    [id]);
+}
+
+dbFunction.getOrdersByUserId = function(id){
+    return promisePool.execute('SELECT * FROM `order_detail` JOIN `item` ON order_detail.item_id=item.id JOIN `order` ON order.id=order_detail.order_id WHERE order.user=?',
+    [id]);
+}
+
+dbFunction.createOrder = function(itemList, userid, date){
+    let orderid;
+    return promisePool.execute('INSERT INTO `order` (user, createdDate) VALUE (?,?)', [userid, date])
+    .then((executeResult)=>{
+        orderid = executeResult[0].insertId;
+        let promiseArray = [];
+        for(let i=0; i<itemList.length; i++){
+            promiseArray.push(promisePool.execute('INSERT INTO `order_detail` (item_id, quantity, order_id) VALUE (?,?,?)',
+            [itemList[i].id, itemList[i].quantity, orderid]));
+        }
+        return Promise.all(promiseArray);
+    })
+    .then(()=>{
+        return orderid;
+    });
 }
 
 exports.dbFunction = dbFunction;

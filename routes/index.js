@@ -6,6 +6,7 @@ const {getAllCategories, postCategory, patchCategory} = require('../handlers/cat
 const {getAllItems, postItem, patchItem} = require('../handlers/itemHandler');
 const {getAllUsers, postUser, patchUser} = require('../handlers/userHandler');
 const {getJWT} = require('../handlers/loginHandler');
+const {getAllOrders, getOrderById, postOrder} = require('../handlers/orderHandler');
 
 function sendErrorResponse(res, error, errorCode){
   switch(errorCode){
@@ -187,6 +188,36 @@ router.post('/login', function(req, res, next){
   .catch(err => {
     sendErrorResponse(res, err, 500);
   });
+});
+
+router.get('/order', function(req, res, next){
+  getAllOrders(req)
+  .then(responseBody => {
+    sendResponse(res, responseBody, 'GET');
+  })
+  .catch(err => {
+    sendErrorResponse(res, err, 500);
+  });
+});
+
+router.get('/order/:id', function(req, res, next){
+  getOrderById(req)
+  .then(responseBody => {
+    sendResponse(res, responseBody, 'GET');
+  })
+  .catch(err => {
+    sendErrorResponse(res, err, 500);
+  })
+});
+
+router.post('/order', function(req, res, next){
+  postOrder(req)
+  .then(responseBody => {
+    sendResponse(res, responseBody, 'POST');
+  })
+  .catch(err => {
+    sendErrorResponse(res, err, 500);
+  })
 });
 
 router.all('/*', function(req, res, next){

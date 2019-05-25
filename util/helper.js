@@ -23,6 +23,11 @@ function verifyHeaderAuth(request, isAdmin){
       }
 }
 
+function decodeJWT(request){
+    let token = request.headers.authorization.split(' ')[1];
+    return jwt.verify(token, jwtconfig.SECRET_KEY);
+}
+
 function generateJWT(obj){
     let token = jwt.sign(obj, jwtconfig.SECRET_KEY, {expiresIn: jwtconfig.EXPIRY_DAY});
     return token;
@@ -31,3 +36,4 @@ function generateJWT(obj){
 exports.generateJWT = generateJWT;
 exports.verifyHeaderAuth = verifyHeaderAuth;
 exports.verifyPayloadType = verifyPayloadType;
+exports.decodeJWT = decodeJWT;

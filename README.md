@@ -126,7 +126,8 @@ POST localhost:3000/order
 {
 	"type": "order",
 	"data": {
-		"itemList": [
+		"company"(required): 1,
+		"itemList"(required): [
 			{
 				"id": 1,
 				"quantity":1

@@ -11,5 +11,8 @@
     "jwtconfig":{
         "SECRET_KEY": "hyxhyxhyx",
         "EXPIRY_DAY": "1d"
+    },
+    "mqconfig":{
+        "MQ_HOST": "amqp://localhost"
     }
 }

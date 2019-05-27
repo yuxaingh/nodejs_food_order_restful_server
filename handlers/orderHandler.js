@@ -2,6 +2,7 @@ const dbFunction = require('../util/dbUtil').dbFunction;
 const {verifyPayloadType, verifyHeaderAuth, decodeJWT} = require('../util/helper');
 const logger = require('../util/logger');
 const constants = require('../util/constants');
+const mqsend = require('../util/helper').mqsend;
 
 //Case 1(no query string):
 //If the caller is admin, return all users's order;
@@ -79,11 +80,23 @@ async function postOrder(request){
         return constants.AUTHORIZATION_ERROR_RESPONSE;
     }
     let userid = decodeJWT(request).id;
+    let companyid = request.body.data.company;
     let date = new Date();
+    let queue = 'company' + companyid;
     try{
-        let insertId = await dbFunction.createOrder(request.body.data.itemList, userid, date);
+        let insertId = await dbFunction.createOrder(request.body.data.itemList, userid, companyid, date);
         logger.info(`Successfully created order with id: ${insertId}`);
         request.body.data.id = insertId;
+        //prepare order json to send to message queue server
+        let [rows] = await dbFunction.getOrderById(insertId);
+        let msg = {
+            type: "order",
+            data: {
+                itemList: rows
+            }
+        };
+        //send order message to rabbitmq server
+        await mqsend(queue, JSON.stringify(msg));
         logger.info(`POST /order response: ${JSON.stringify(request.body)}`);
         return request.body;
     }catch(err){

@@ -109,9 +109,9 @@ dbFunction.getOrdersByUserId = function(id){
     [id]);
 }
 
-dbFunction.createOrder = function(itemList, userid, date){
+dbFunction.createOrder = function(itemList, userid, companyid, date){
     let orderid;
-    return promisePool.execute('INSERT INTO `order` (user, createdDate) VALUE (?,?)', [userid, date])
+    return promisePool.execute('INSERT INTO `order` (user, company, createdDate) VALUE (?,?,?)', [userid, companyid, date])
     .then((executeResult)=>{
         orderid = executeResult[0].insertId;
         let promiseArray = [];

@@ -3,7 +3,7 @@ const {verifyPayloadType, verifyHeaderAuth} = require('../util/helper');
 const logger = require('../util/logger');
 const constants = require('../util/constants');
 
-async function getAllCompanies(){
+async function getAllCompanies(request){
     if(!verifyHeaderAuth(request, true)){
         return constants.AUTHORIZATION_ERROR_RESPONSE;
     }

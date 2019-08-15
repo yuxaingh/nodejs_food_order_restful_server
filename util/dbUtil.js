@@ -19,6 +19,7 @@ const dbFunction = {};
 
 
 //DB util functions for company
+//Note the query function of promisePool will automatically release the connection, we don't need to worry about releasing it
 dbFunction.getAllCompanies = function(){
     return promisePool.query('SELECT * FROM `company`');
 }
